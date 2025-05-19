@@ -7,5 +7,5 @@ func NewStartUseCase() *StartUseCase {
 }
 
 func (uc *StartUseCase) Execute() string {
-	return "Olá! Envie /stock <TICKER> para ver a cotação."
+	return "Olá! Envie /stock <TICKER> para ver a cotação. \n/fund <TICKER> "
 }

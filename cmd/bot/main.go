@@ -8,6 +8,7 @@ import (
 	"github.com/Rodrigoos/stock-bot-telegram/internal/interface/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/start"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/stockinfo"
+	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/fundinfo"
 	"github.com/Rodrigoos/stock-bot-telegram/pkg/scraper"
 )
 
@@ -23,8 +24,9 @@ func main() {
 
 	scraper := scraper.NewStatusInvestScraper()
 	stockUC := stockinfo.NewStockInfoUseCase(scraper)
+	fundUC := fundinfo.NewFundInfoUseCase(scraper)
 
-	handler := telegram.NewHandler(bot.API, startUC, stockUC)
+	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC)
 
 	log.Println("Bot iniciado...")
 	handler.HandleUpdates()
