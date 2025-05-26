@@ -2,7 +2,6 @@ services:
   db:
     image: postgres:15
     container_name: stock_bot_db
-    restart: always
     environment:
       POSTGRES_USER: stockuser
       POSTGRES_PASSWORD: stockpass
@@ -11,6 +10,24 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U stockuser"]
+      interval: 15s
+      timeout: 15s
+      retries: 5
+
+  app:
+    build: .
+    container_name: stock_bot_app
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["go", "run", "./cmd/bot"]
+    volumes:
+      - .:/app
+    working_dir: /app
 
 volumes:
   pgdata:
