@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 	"os"
-
+	"github.com/joho/godotenv"
 	infrabot "github.com/Rodrigoos/stock-bot-telegram/internal/infrastructure/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/interface/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/start"
@@ -13,6 +13,11 @@ import (
 )
 
 func main() {
+
+	if err := godotenv.Load(); err != nil {
+		log.Fatal("Erro ao carregar o arquivo .env")
+	}
+
 	token := os.Getenv("TELEGRAM_BOT_TOKEN")
 	if token == "" {
 		log.Fatal("TELEGRAM_BOT_TOKEN não definido")

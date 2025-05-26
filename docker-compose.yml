@@ -1,0 +1,16 @@
+services:
+  db:
+    image: postgres:15
+    container_name: stock_bot_db
+    restart: always
+    environment:
+      POSTGRES_USER: stockuser
+      POSTGRES_PASSWORD: stockpass
+      POSTGRES_DB: stockdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
