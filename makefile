@@ -1,0 +1,41 @@
+# Arquivo Makefile
+
+DB_CONTAINER=stock_bot_db
+DB_VOLUME=stock_bot_telegram_pgdata
+DB_USER=stockuser
+DB_NAME=stockdb
+
+# Sobe o ambiente
+up:
+	docker compose up -d
+
+# Derruba o ambiente
+down:
+	docker compose down
+
+# Mostra os logs do banco
+logs:
+	docker compose logs -f db
+
+# Entra no container do banco
+psql:
+	docker exec -it $(DB_CONTAINER) psql -U $(DB_USER) -d $(DB_NAME)
+
+# Reseta completamente o banco (cuidado! apaga tudo)
+reset-db: down rm-volume up migrate
+
+# Remove volume de dados
+rm-volume:
+	docker volume rm $(DB_VOLUME) || true
+
+# Executa as migrations do GORM automaticamente
+migrate:
+	go run ./cmd/migrate
+
+# Mostra volumes docker (debug)
+volumes:
+	docker volume ls
+
+# Status dos containers
+status:
+	docker ps
