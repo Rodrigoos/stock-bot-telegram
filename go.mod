@@ -8,6 +8,8 @@ require (
 	github.com/PuerkitoBio/goquery v1.10.3
 	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/joho/godotenv v1.5.1
+	gorm.io/driver/postgres v1.5.11
+	gorm.io/gorm v1.26.1
 )
 
 require (
@@ -22,8 +24,6 @@ require (
 	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/sync v0.13.0 // indirect
 	golang.org/x/text v0.24.0 // indirect
-	gorm.io/driver/postgres v1.5.11 // indirect
-	gorm.io/gorm v1.26.1 // indirect
 )
 
 replace github.com/Rodrigoos/stock-bot-telegram => .
