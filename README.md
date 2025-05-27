@@ -6,10 +6,12 @@ Um bot do Telegram escrito em Go, com Clean Architecture, que permite consultar 
 
 ## 🚀 Funcionalidades
 
-- Comando `/start`: mensagem de boas-vindas
-- Comando `/quote [TICKER]`: retorna a cotação da ação ou FII
+- Recebe comandos via Telegram
+- Busca dados de ações e FIIs no StatusInvest
 - Modular e escalável com Clean Architecture
-- Scrapers desacoplados para diferentes fontes de dados
+- Persiste dados com PostgreSQL
+- Configuração via .env
+- Modular e escalável com Clean Architecture
 
 ---
 
@@ -26,27 +28,26 @@ go mod tidy
 stock-bot-telegram/
 ├── cmd/
 │   └── bot/
-│       └── main.go                  // Entrada principal do bot
-│
+│       └── main.go
 ├── internal/
+│   ├── models/
+│   │   ├── asset.go
+│   │   └── portfolio.go
+│   ├── infrastructure/
+│   │   ├── database/
+│   │   │   └── postgres.go
+│   │   └── telegram/
+│   │       └── bot.go
 │   ├── interface/
 │   │   └── telegram/
-│   │       └── handler.go          // Lida com comandos do Telegram
-│
-│   ├── infrastructure/
-│   │   └── telegram/
-│   │       └── bot.go              // Conexão com o Telegram
-│   │
-│   └── usecase/
-│       ├── start/
-│       │   └── start.go          // Lógica do /start
-│       │
-│       └── stockinfo/
-│           └── stockinfo.go          // Lógica para buscar cotação
-│
-├── pkg/
-│   └── scraper/
-│       └── statusinvest.go         // Scraper para StatusInvest
-│
+│   │       └── handler.go
+│   ├── usecase/
+│   │   ├── portfolio.go
+│   │   └── scraper/
+│   │       └── statusinvest.go
+├── .env
 ├── go.mod
-└── go.sum
+├── go.sum
+├── Dockerfile
+├── docker-compose.yml
+└── README.md

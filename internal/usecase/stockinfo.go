@@ -1,4 +1,4 @@
-package stockinfo
+package usecase
 
 type StockInfoFetcher interface {
 	GetStockInfo(ticker string) (string, error)

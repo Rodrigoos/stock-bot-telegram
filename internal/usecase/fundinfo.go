@@ -1,4 +1,4 @@
-package fundinfo
+package usecase
 
 type FundInfoFetcher interface {
 	GetFundInfo(ticker string) (string, error)

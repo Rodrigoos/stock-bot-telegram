@@ -1,4 +1,4 @@
-package start
+package usecase
 
 type StartUseCase struct{}
 

@@ -9,9 +9,7 @@ import (
 	"github.com/Rodrigoos/stock-bot-telegram/internal/interface/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/models"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase"
-	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/fundinfo"
-	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/start"
-	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/stockinfo"
+
 	"github.com/Rodrigoos/stock-bot-telegram/pkg/scraper"
 	"github.com/joho/godotenv"
 )
@@ -33,8 +31,7 @@ func main() {
 
 	bot := infrabot.NewTelegramBot(token)
 
-	startUC := start.NewStartUseCase()
-
+	startUC := usecase.NewStartUseCase()
 	portfolio := models.Portfolio{
 		Name: "Rod",
 		Assets: []models.Asset{
@@ -49,8 +46,8 @@ func main() {
 	}
 
 	scraper := scraper.NewStatusInvestScraper()
-	stockUC := stockinfo.NewStockInfoUseCase(scraper)
-	fundUC := fundinfo.NewFundInfoUseCase(scraper)
+	stockUC := usecase.NewStockInfoUseCase(scraper)
+	fundUC := usecase.NewFundInfoUseCase(scraper)
 	portfolioService := usecase.NewPortfolioService(db.Connect())
 
 	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC, portfolioService)
