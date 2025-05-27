@@ -1,12 +1,11 @@
 package scraper
 
 import (
-  "fmt"
-  // "io"
-  "log"
-  "net/http"
+	"fmt"
+	"log"
+	"net/http"
 
-  "github.com/PuerkitoBio/goquery"
+	"github.com/PuerkitoBio/goquery"
 )
 
 type StatusInvestScraper struct{}
@@ -28,7 +27,7 @@ func (s *StatusInvestScraper) GetStockInfo(ticker string) (string, error) {
   req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
   req.Header.Set("Accept-Language", "pt-BR,pt;q=0.9")
   req.Header.Set("Referer", "https://www.google.com/")
-    
+
   resp, err := client.Do(req)
   if err != nil {
     log.Fatal(err)
@@ -36,7 +35,7 @@ func (s *StatusInvestScraper) GetStockInfo(ticker string) (string, error) {
   defer resp.Body.Close()
 
   log.Println("Status:", resp.StatusCode)
-  
+
   if err != nil {
     return "", err
   }
@@ -46,20 +45,20 @@ func (s *StatusInvestScraper) GetStockInfo(ticker string) (string, error) {
   if resp.StatusCode != 200 {
     return "", fmt.Errorf("status code %d", resp.StatusCode)
   }
-  
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return "", err
-	}
+
+  doc, err := goquery.NewDocumentFromReader(resp.Body)
+  if err != nil {
+    return "", err
+  }
 
   header := doc.Find(".top-info").First()
-  
-  title := doc.Find("h1").First().Text()
-	price := header.Find(".value").First().Text()
-	change := doc.Find(".sub-value b").First().Text()
 
-	log.Println("Preço:", price)
-	log.Println("Variação:", change)
+  title := doc.Find("h1").First().Text()
+  price := header.Find(".value").First().Text()
+  change := doc.Find(".sub-value b").First().Text()
+
+  log.Println("Preço:", price)
+  log.Println("Variação:", change)
 
   if price == "" || change == "" {
     return "", fmt.Errorf("não foi possível encontrar preço ou variação")
@@ -81,7 +80,7 @@ func (s *StatusInvestScraper) GetFundInfo(ticker string) (string, error) {
   req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8")
   req.Header.Set("Accept-Language", "pt-BR,pt;q=0.9")
   req.Header.Set("Referer", "https://www.google.com/")
-    
+
   resp, err := client.Do(req)
   if err != nil {
     log.Fatal(err)
@@ -89,7 +88,7 @@ func (s *StatusInvestScraper) GetFundInfo(ticker string) (string, error) {
   defer resp.Body.Close()
 
   log.Println("Status:", resp.StatusCode)
-  
+
   if err != nil {
     return "", err
   }
@@ -99,20 +98,20 @@ func (s *StatusInvestScraper) GetFundInfo(ticker string) (string, error) {
   if resp.StatusCode != 200 {
     return "", fmt.Errorf("status code %d", resp.StatusCode)
   }
-  
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
-	if err != nil {
-		return "", err
-	}
+
+  doc, err := goquery.NewDocumentFromReader(resp.Body)
+  if err != nil {
+    return "", err
+  }
 
   header := doc.Find(".top-info").First()
-  
-  title := doc.Find("h1").First().Text()
-	price := header.Find(".value").First().Text()
-	change := doc.Find(".sub-value b").First().Text()
 
-	log.Println("Preço:", price)
-	log.Println("Variação:", change)
+  title := doc.Find("h1").First().Text()
+  price := header.Find(".value").First().Text()
+  change := doc.Find(".sub-value b").First().Text()
+
+  log.Println("Preço:", price)
+  log.Println("Variação:", change)
 
   if price == "" || change == "" {
     return "", fmt.Errorf("não foi possível encontrar preço ou variação")

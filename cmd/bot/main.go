@@ -8,6 +8,7 @@ import (
 	infrabot "github.com/Rodrigoos/stock-bot-telegram/internal/infrastructure/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/interface/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/models"
+	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/fundinfo"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/start"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase/stockinfo"
@@ -35,7 +36,7 @@ func main() {
 	startUC := start.NewStartUseCase()
 
 	portfolio := models.Portfolio{
-		Name: "Minha Carteira FII",
+		Name: "Rod",
 		Assets: []models.Asset{
 			{Ticker: "HGLG11", Quantity: 10, Price: 158.0},
 			{Ticker: "KNRI11", Quantity: 5, Price: 125.5},
@@ -50,8 +51,9 @@ func main() {
 	scraper := scraper.NewStatusInvestScraper()
 	stockUC := stockinfo.NewStockInfoUseCase(scraper)
 	fundUC := fundinfo.NewFundInfoUseCase(scraper)
+	portfolioService := usecase.NewPortfolioService(db.Connect())
 
-	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC)
+	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC, portfolioService)
 
 	log.Println("Bot iniciado...")
 	handler.HandleUpdates()
