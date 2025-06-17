@@ -9,26 +9,29 @@ import (
 )
 
 type Handler struct {
-  Bot              *tgbotapi.BotAPI
-  StartUseCase     *usecase.StartUseCase
-  StockInfoUseCase *usecase.StockInfoUseCase
-  FundInfoUseCase  *usecase.FundInfoUseCase
-  PortfolioService *usecase.PortfolioService
+  Bot               *tgbotapi.BotAPI
+  StartUseCase      *usecase.StartUseCase
+  StockInfoUseCase  *usecase.StockInfoUseCase
+  FundInfoUseCase   *usecase.FundInfoUseCase
+  CriptoInfoUseCase *usecase.CriptoInfoUseCase
+  PortfolioService  *usecase.PortfolioService
 }
 
 func NewHandler(
-  bot *tgbotapi.BotAPI,
-  startUC *usecase.StartUseCase,
-  stockUC *usecase.StockInfoUseCase,
-  fundUC *usecase.FundInfoUseCase,
-  ps *usecase.PortfolioService,
+  bot      *tgbotapi.BotAPI,
+  startUC  *usecase.StartUseCase,
+  stockUC  *usecase.StockInfoUseCase,
+  fundUC   *usecase.FundInfoUseCase,
+  criptoUC *usecase.CriptoInfoUseCase,
+  ps       *usecase.PortfolioService,
 ) *Handler {
   return &Handler{
-    Bot:              bot,
-    StartUseCase:     startUC,
-    StockInfoUseCase: stockUC,
-    FundInfoUseCase:  fundUC,
-    PortfolioService: ps,
+    Bot:               bot,
+    StartUseCase:      startUC,
+    StockInfoUseCase:  stockUC,
+    FundInfoUseCase:   fundUC,
+    CriptoInfoUseCase: criptoUC,
+    PortfolioService:  ps,
   }
 }
 
@@ -53,8 +56,12 @@ func (h *Handler) HandleUpdates() {
       h.handleFindStock(update.Message)
     case strings.HasPrefix(text, "/fundo") || strings.HasPrefix(text, "/fund"):
       h.handleFindFund(update.Message)
+    case strings.HasPrefix(text, "/cripto"):
+      h.handleFindCripto(update.Message)
     case strings.HasPrefix(text, "/portfolio") || strings.HasPrefix(text, "/carteira"):
       h.handleGetPortfolio(update.Message)
+    case strings.HasPrefix(text, "/all-portfolios") || strings.HasPrefix(text, "/totas-carteiras"):
+      h.handleListPortfolios(update.Message)
     default:
       h.sendMessage(update.Message.Chat.ID, "Comando não reconhecido.")
     }
@@ -96,6 +103,25 @@ func (h *Handler) handleFindFund(message *tgbotapi.Message) {
   h.sendMessage(message.Chat.ID, info)
 }
 
+func (h *Handler) handleFindCripto(message *tgbotapi.Message) {
+  args := strings.SplitN(message.Text, " ", 2)
+  if len(args) < 2 {
+    h.sendMessage(message.Chat.ID, "Use o comando assim: /cripto bitcoin")
+    return
+  }
+
+  cripto := strings.ToUpper(args[1])
+
+  info, err := h.CriptoInfoUseCase.Execute(cripto)
+  if err != nil {
+    h.sendMessage(message.Chat.ID, "Erro ao buscar informação: "+err.Error())
+    return
+  }
+
+
+  h.sendMessage(message.Chat.ID, info)
+}
+
 func (h *Handler) handleGetPortfolio(message *tgbotapi.Message) {
   args := strings.SplitN(message.Text, " ", 2)
   if len(args) < 2 {
@@ -118,6 +144,22 @@ func (h *Handler) handleGetPortfolio(message *tgbotapi.Message) {
 
   response += fmt.Sprintf("Total de Ativos: %d\n", len(portfolio.Assets))
   response += fmt.Sprintf("Total em Carteira: R$%.2f\n", portfolio.TotalValue())
+
+  h.sendMessage(message.Chat.ID, response)
+}
+
+func (h *Handler) handleListPortfolios(message *tgbotapi.Message) {
+  portfolios, err := h.PortfolioService.ListPortfolios()
+  
+  if err != nil {
+    h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err))
+    return
+  }
+
+  response := fmt.Sprintf("Carteiras: \n")
+  for _, portfolio := range portfolios {
+    response += fmt.Sprintf("%s:  Total R$%.2f \n", portfolio.Name, portfolio.TotalValue())
+  }
 
   h.sendMessage(message.Chat.ID, response)
 }

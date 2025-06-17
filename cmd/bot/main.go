@@ -45,12 +45,15 @@ func main() {
 		log.Println("Erro ao criar portfólio:", result.Error)
 	}
 
-	scraper := scraper.NewStatusInvestScraper()
-	stockUC := usecase.NewStockInfoUseCase(scraper)
-	fundUC := usecase.NewFundInfoUseCase(scraper)
+	status_scraper := scraper.NewStatusInvestScraper()
+	binance_scraper := scraper.NewBinanceScraper()
+
+	stockUC := usecase.NewStockInfoUseCase(status_scraper)
+	fundUC := usecase.NewFundInfoUseCase(status_scraper)
+	criptoUC := usecase.NewCriptoInfoUseCase(binance_scraper)
 	portfolioService := usecase.NewPortfolioService(db.Connect())
 
-	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC, portfolioService)
+	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC, criptoUC, portfolioService)
 
 	log.Println("Bot iniciado...")
 	handler.HandleUpdates()
