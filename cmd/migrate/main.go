@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"stockbot/internal/infrastructure/database"
-	"stockbot/internal/models"
+	"github.com/Rodrigoos/stock-bot-telegram/internal/infrastructure/db"
+	"github.com/Rodrigoos/stock-bot-telegram/internal/models"
 
 	"github.com/joho/godotenv"
 )
@@ -15,9 +15,9 @@ func main() {
 		log.Println("Arquivo .env não encontrado, usando variáveis de ambiente do sistema")
 	}
 
-	db := database.Connect()
+	db.Connect()
 
-	err = db.AutoMigrate(&models.Portfolio{}, &models.Asset{})
+	err = db.DB.AutoMigrate(&models.Portfolio{}, &models.Asset{})
 	if err != nil {
 		log.Fatal("Erro ao migrar: ", err)
 	}

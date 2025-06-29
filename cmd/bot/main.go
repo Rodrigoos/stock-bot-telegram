@@ -9,7 +9,6 @@ import (
 	"github.com/Rodrigoos/stock-bot-telegram/internal/interface/telegram"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/models"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase"
-
 	"github.com/Rodrigoos/stock-bot-telegram/pkg/scraper"
 	"github.com/joho/godotenv"
 )
@@ -31,29 +30,37 @@ func main() {
 
 	bot := infrabot.NewTelegramBot(token)
 
-	startUC := usecase.NewStartUseCase()
-	portfolio := models.Portfolio{
-		Name: "Rod",
-		Assets: []models.Asset{
-			{Ticker: "HGLG11", Quantity: 10, Price: 158.0},
-			{Ticker: "KNRI11", Quantity: 5, Price: 125.5},
-		},
-	}
+	// portfolio := models.Portfolio{
+	//   Name: "Rod",
+	//   Assets: []models.Asset{
+	//     {Ticker: "HGLG11", Quantity: 10, Price: 158.0},
+	//     {Ticker: "KNRI11", Quantity: 5, Price: 125.5},
+	//   },
+	// }
 
-	result := db.DB.Create(&portfolio)
-	if result.Error != nil {
-		log.Println("Erro ao criar portfólio:", result.Error)
-	}
+	// result := db.DB.Create(&portfolio)
+	// if result.Error != nil {
+	//   log.Println("Erro ao criar portfólio:", result.Error)
+	// }
 
 	status_scraper := scraper.NewStatusInvestScraper()
 	binance_scraper := scraper.NewBinanceScraper()
 
+	startUC := usecase.NewStartUseCase()
 	stockUC := usecase.NewStockInfoUseCase(status_scraper)
 	fundUC := usecase.NewFundInfoUseCase(status_scraper)
 	criptoUC := usecase.NewCriptoInfoUseCase(binance_scraper)
 	portfolioService := usecase.NewPortfolioService(db.Connect())
+	// handleCSV := usecase.NewHandleCSV()
 
-	handler := telegram.NewHandler(bot.API, startUC, stockUC, fundUC, criptoUC, portfolioService)
+	handler := telegram.NewHandler(bot.API,
+		startUC,
+		stockUC,
+		fundUC,
+		criptoUC,
+		portfolioService,
+	//  handleCSV
+	)
 
 	log.Println("Bot iniciado...")
 	handler.HandleUpdates()

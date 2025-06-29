@@ -1,7 +1,6 @@
-# Arquivo Makefile
-
+APP_CONTAINER=stock_bot_app
 DB_CONTAINER=stock_bot_db
-DB_VOLUME=stock_bot_telegram_pgdata
+DB_VOLUME=stock-bot-telegram_pgdata
 DB_USER=stockuser
 DB_NAME=stockdb
 
@@ -30,11 +29,15 @@ rm-volume:
 
 # Executa as migrations do GORM automaticamente
 migrate:
-	go run ./cmd/migrate
+	docker exec -it $(APP_CONTAINER) bash -c "go run ./cmd/migrate"
 
 # Mostra volumes docker (debug)
 volumes:
 	docker volume ls
+  	
+# Criar carteiras com base em um csv	
+seed:
+	docker exec -it $(APP_CONTAINER) bash -c "go run ./cmd/seed"
 
 # Status dos containers
 status:
