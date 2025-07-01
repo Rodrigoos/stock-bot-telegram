@@ -140,11 +140,12 @@ func (h *Handler) handleGetPortfolio(message *tgbotapi.Message) {
 
 	response := fmt.Sprintf("Carteira: %s\nAtivos:\n", portfolio.Name)
 	for _, asset := range portfolio.Assets {
-		response += fmt.Sprintf("%s: %d R$%.2f\n - Total R$%.2f\n",
+		response += fmt.Sprintf("%s:\n%d x R$%.2f\nTotal R$%.2f\n",
 			asset.Ticker, asset.Quantity, asset.Price, (float64(asset.Quantity) * asset.Price))
 	}
 
 	response += fmt.Sprintf("Total de Ativos: %d\n", len(portfolio.Assets))
+	response += fmt.Sprintf("Quantidade Total de Ativos: %d\n", portfolio.TotalQuantity())
 	response += fmt.Sprintf("Total em Carteira: R$%.2f\n", portfolio.TotalValue())
 
 	h.sendMessage(message.Chat.ID, response)

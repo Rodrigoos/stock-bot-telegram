@@ -39,6 +39,9 @@ volumes:
 seed:
 	docker exec -it $(APP_CONTAINER) bash -c "go run ./cmd/seed"
 
+seed-file:
+	docker exec -it $(APP_CONTAINER) bash -c "go run ./cmd/seed/main.go $(FILE)"
+
 # Status dos containers
 status:
 	docker ps

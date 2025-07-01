@@ -9,26 +9,30 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/joho/godotenv"
-
 	"github.com/Rodrigoos/stock-bot-telegram/internal/infrastructure/db"
 	"github.com/Rodrigoos/stock-bot-telegram/internal/models"
+	"github.com/joho/godotenv"
 )
 
 func main() {
-	if err := godotenv.Load(); err != nil {
-		log.Println("Aviso: .env não encontrado, seguindo com variáveis de ambiente do sistema")
+
+	if len(os.Args) < 2 {
+		log.Fatal("Informe o nome do arquivo (ex: fundos)")
+	}
+	err := seedFromCSV(os.Args[1])
+	if err != nil {
+		log.Fatalf("Erro ao rodar seed: %v", err)
 	}
 
-	err := seedFromXPCSV("cmd/seed/csv/acoes.csv", "Acoes")
-	if err != nil {
-		log.Fatalf("Erro ao semear dados: %v", err)
+	if err := godotenv.Load(); err != nil {
+		log.Println("Aviso: .env não encontrado, seguindo com variáveis de ambiente do sistema")
 	}
 
 	fmt.Println("Seed concluído com sucesso.")
 }
 
-func seedFromXPCSV(path string, portfolioName string) error {
+func seedFromCSV(portfolioName string) error {
+	path := "cmd/seed/csv/" + portfolioName + ".csv"
 	file, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		return fmt.Errorf("erro ao abrir arquivo: %w", err)
