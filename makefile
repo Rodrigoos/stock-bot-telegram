@@ -51,3 +51,6 @@ update-fund-prices:
 
 update-stock-prices:
 	docker exec -it $(APP_CONTAINER) bash -c "go run ./cmd/update_stock_prices/main.go $(ID)"
+
+send-portfolio-message:
+	docker exec -it $(APP_CONTAINER) bash -c "go run ./cmd/notify_telegram/main.go $(ID)"

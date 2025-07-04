@@ -30,19 +30,6 @@ func main() {
 
 	bot := infrabot.NewTelegramBot(token)
 
-	// portfolio := models.Portfolio{
-	//   Name: "Rod",
-	//   Assets: []models.Asset{
-	//     {Ticker: "HGLG11", Quantity: 10, Price: 158.0},
-	//     {Ticker: "KNRI11", Quantity: 5, Price: 125.5},
-	//   },
-	// }
-
-	// result := db.DB.Create(&portfolio)
-	// if result.Error != nil {
-	//   log.Println("Erro ao criar portfólio:", result.Error)
-	// }
-
 	status_scraper := scraper.NewStatusInvestScraper()
 	binance_scraper := scraper.NewBinanceScraper()
 
@@ -51,7 +38,6 @@ func main() {
 	fundUC := usecase.NewFundInfoUseCase(status_scraper)
 	criptoUC := usecase.NewCriptoInfoUseCase(binance_scraper)
 	portfolioService := usecase.NewPortfolioService(db.Connect())
-	// handleCSV := usecase.NewHandleCSV()
 
 	handler := telegram.NewHandler(bot.API,
 		startUC,
@@ -59,7 +45,6 @@ func main() {
 		fundUC,
 		criptoUC,
 		portfolioService,
-	//  handleCSV
 	)
 
 	log.Println("Bot iniciado...")

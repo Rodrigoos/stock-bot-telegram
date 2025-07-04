@@ -51,3 +51,53 @@ stock-bot-telegram/
 ├── Dockerfile
 ├── docker-compose.yml
 └── README.md
+```
+
+## 🛠️ Comandos do Makefile
+
+O projeto possui um `Makefile` para facilitar tarefas comuns com Docker. Veja os principais comandos:
+
+```bash
+# Sobe o ambiente (containers em background)
+make up
+
+# Derruba o ambiente (para e remove containers)
+make down
+
+# Mostra os logs do banco de dados
+make logs
+
+# Acessa o banco de dados via psql
+make psql
+
+# Reseta completamente o banco de dados (remove tudo e recria)
+make reset-db
+
+# Remove o volume de dados do banco (apaga todos os dados)
+make rm-volume
+
+# Executa as migrations do banco de dados
+make migrate
+
+# Mostra os volumes Docker existentes
+make volumes
+
+# Popula o banco usando um arquivo específico
+make seed-file FILE=path/do/arquivo.csv
+
+# Mostra o status dos containers Docker
+make status
+
+# Atualiza os preços dos fundos (pode passar ID opcional: make update-fund-prices ID=123)
+make update-fund-prices
+
+# Atualiza os preços das ações (pode passar ID opcional: make update-stock-prices ID=123)
+make update-stock-prices
+```
+
+Para ver todos os comandos disponíveis, rode:
+
+```bash
+make help
+```
+

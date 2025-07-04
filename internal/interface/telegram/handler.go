@@ -32,7 +32,6 @@ func NewHandler(
 		FundInfoUseCase:   fundUC,
 		CriptoInfoUseCase: criptoUC,
 		PortfolioService:  ps,
-		// HandleCSV:         handleCSV,
 	}
 }
 
@@ -52,6 +51,7 @@ func (h *Handler) HandleUpdates() {
 		switch {
 		case text == "/start":
 			msg := h.StartUseCase.Execute()
+			// log.Println(update.Message.Chat.ID)
 			h.sendMessage(update.Message.Chat.ID, msg)
 		case strings.HasPrefix(text, "/stock") || strings.HasPrefix(text, "/acao"):
 			h.handleFindStock(update.Message)
@@ -63,8 +63,6 @@ func (h *Handler) HandleUpdates() {
 			h.handleGetPortfolio(update.Message)
 		case strings.HasPrefix(text, "/all-portfolios") || strings.HasPrefix(text, "/totas-carteiras"):
 			h.handleListPortfolios(update.Message)
-		// case strings.HasPrefix(text, "/import"):
-		// h.handleImportCsv(update.Message)
 		default:
 			h.sendMessage(update.Message.Chat.ID, "Comando não reconhecido.")
 		}
@@ -171,7 +169,3 @@ func (h *Handler) sendMessage(chatID int64, text string) {
 	msg := tgbotapi.NewMessage(chatID, text)
 	h.Bot.Send(msg)
 }
-
-// func (h *Handler) handleImportCsv(message *tgbotapi.Message) {
-
-// }
