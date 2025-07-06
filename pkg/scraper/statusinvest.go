@@ -59,14 +59,14 @@ func (s *StatusInvestScraper) GetStockInfo(ticker string) (string, error) {
 	price := header.Find(".value").First().Text()
 	change := doc.Find(".sub-value b").First().Text()
 
-	log.Println("Preço:", price)
+	log.Println("Preço: R$", price)
 	log.Println("Variação:", change)
 
 	if price == "" || change == "" {
 		return "", fmt.Errorf("não foi possível encontrar preço ou variação")
 	}
 
-	return fmt.Sprintf("%s\nPreço: %s\nVariação: %s", title, price, change), nil
+	return fmt.Sprintf("%s\nPreço: R$ %s\nVariação: %s", title, price, change), nil
 }
 
 func (s *StatusInvestScraper) GetFundInfo(ticker string) (string, error) {
@@ -119,7 +119,7 @@ func (s *StatusInvestScraper) GetFundInfo(ticker string) (string, error) {
 		return "", fmt.Errorf("não foi possível encontrar preço ou variação")
 	}
 
-	return fmt.Sprintf("%s\nPreço: %s\nVariação: %s", title, price, change), nil
+	return fmt.Sprintf("%s\nPreço: R$ %s\nVariação: %s", title, price, change), nil
 }
 
 func (s *StatusInvestScraper) GetStockPrice(ticker string) (float64, error) {

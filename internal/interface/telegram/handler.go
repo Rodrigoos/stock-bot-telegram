@@ -2,9 +2,11 @@ package telegram
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase"
+	"github.com/Rodrigoos/stock-bot-telegram/internal/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -50,9 +52,21 @@ func (h *Handler) HandleUpdates() {
 
 		switch {
 		case text == "/start":
-			msg := h.StartUseCase.Execute()
-			// log.Println(update.Message.Chat.ID)
-			h.sendMessage(update.Message.Chat.ID, msg)
+			msg := "*📈 Stock Bot*\n" +
+				"_Seu assistente de investimentos_\n\n" +
+				"*Comandos disponíveis:*\n" +
+				"• `/stock` ou `/acao` — Busca ações na B3\n" +
+				"• `/fundo` — Busca fundos imobiliários\n" +
+				"• `/cripto` — Busca criptomoedas\n" +
+				"• `/pie-chart` ou `/grafico-pizza` — Gera gráfico de pizza da carteira\n" +
+				"• `/portfolio` ou `/carteira` — Mostra sua carteira\n" +
+				"• `/all-portfolios` — Lista todas as carteiras salvas\n" +
+				"•by Rodrigo • github.com/Rodrigoos"
+
+			message := tgbotapi.NewMessage(update.Message.Chat.ID, msg)
+			message.ParseMode = "Markdown"
+			h.Bot.Send(message)
+
 		case strings.HasPrefix(text, "/stock") || strings.HasPrefix(text, "/acao"):
 			h.handleFindStock(update.Message)
 		case strings.HasPrefix(text, "/fundo") || strings.HasPrefix(text, "/fund"):
@@ -61,10 +75,12 @@ func (h *Handler) HandleUpdates() {
 			h.handleFindCripto(update.Message)
 		case strings.HasPrefix(text, "/portfolio") || strings.HasPrefix(text, "/carteira"):
 			h.handleGetPortfolio(update.Message)
+		case strings.HasPrefix(text, "/pie-chart") || strings.HasPrefix(text, "/grafico-pizza"):
+			h.handleCreatePieChart(update.Message)
 		case strings.HasPrefix(text, "/all-portfolios") || strings.HasPrefix(text, "/totas-carteiras"):
 			h.handleListPortfolios(update.Message)
 		default:
-			h.sendMessage(update.Message.Chat.ID, "Comando não reconhecido.")
+			h.sendMessage(update.Message.Chat.ID, "Comando não reconhecido.", "Markdown")
 		}
 	}
 }
@@ -72,24 +88,24 @@ func (h *Handler) HandleUpdates() {
 func (h *Handler) handleFindStock(message *tgbotapi.Message) {
 	args := strings.SplitN(message.Text, " ", 2)
 	if len(args) < 2 {
-		h.sendMessage(message.Chat.ID, "Use o comando assim: /stock PETR4 ou /acao PETR4")
+		h.sendMessage(message.Chat.ID, "Use o comando assim: /stock PETR4 ou /acao PETR4", "Text")
 		return
 	}
 
 	ticker := strings.ToUpper(args[1])
 	info, err := h.StockInfoUseCase.Execute(ticker)
 	if err != nil {
-		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err))
+		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Text")
 		return
 	}
 
-	h.sendMessage(message.Chat.ID, info)
+	h.sendMessage(message.Chat.ID, info, "Text")
 }
 
 func (h *Handler) handleFindFund(message *tgbotapi.Message) {
 	args := strings.SplitN(message.Text, " ", 2)
 	if len(args) < 2 {
-		h.sendMessage(message.Chat.ID, "Use o comando assim: /fundo HGLG11 ou /fund HGLG11")
+		h.sendMessage(message.Chat.ID, "Use o comando assim: /fundo HGLG11 ou /fund HGLG11", "Text")
 		return
 	}
 
@@ -97,17 +113,17 @@ func (h *Handler) handleFindFund(message *tgbotapi.Message) {
 
 	info, err := h.FundInfoUseCase.Execute(ticker)
 	if err != nil {
-		h.sendMessage(message.Chat.ID, "Erro ao buscar informação: "+err.Error())
+		h.sendMessage(message.Chat.ID, "Erro ao buscar informação: "+err.Error(), "Text")
 		return
 	}
 
-	h.sendMessage(message.Chat.ID, info)
+	h.sendMessage(message.Chat.ID, info, "Text")
 }
 
 func (h *Handler) handleFindCripto(message *tgbotapi.Message) {
 	args := strings.SplitN(message.Text, " ", 2)
 	if len(args) < 2 {
-		h.sendMessage(message.Chat.ID, "Use o comando assim: /cripto bitcoin")
+		h.sendMessage(message.Chat.ID, "Use o comando assim: /cripto bitcoin", "Markdown")
 		return
 	}
 
@@ -115,57 +131,94 @@ func (h *Handler) handleFindCripto(message *tgbotapi.Message) {
 
 	info, err := h.CriptoInfoUseCase.Execute(cripto)
 	if err != nil {
-		h.sendMessage(message.Chat.ID, "Erro ao buscar informação: "+err.Error())
+		h.sendMessage(message.Chat.ID, "Erro ao buscar informação: "+err.Error(), "Markdown")
 		return
 	}
 
-	h.sendMessage(message.Chat.ID, info)
+	h.sendMessage(message.Chat.ID, info, "Text")
 }
 
 func (h *Handler) handleGetPortfolio(message *tgbotapi.Message) {
 	args := strings.SplitN(message.Text, " ", 2)
 	if len(args) < 2 {
-		h.sendMessage(message.Chat.ID, "Por favor, informe o nome da carteira. Exemplo: /carteira MinhaCarteira")
+		h.sendMessage(message.Chat.ID, "Por favor, informe o nome da carteira. Exemplo: /carteira MinhaCarteira", "Text")
 		return
 	}
 
 	portfolioName := args[1]
 	portfolio, err := h.PortfolioService.GetPortfolioByName(portfolioName)
 	if err != nil {
-		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err))
+		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Markdown")
 		return
 	}
 
-	response := fmt.Sprintf("Carteira: %s\nAtivos:\n", portfolio.Name)
-	for _, asset := range portfolio.Assets {
-		response += fmt.Sprintf("%s:\n%d x R$%.2f\nTotal R$%.2f\n",
-			asset.Ticker, asset.Quantity, asset.Price, (float64(asset.Quantity) * asset.Price))
-	}
+	msg := utils.FormatPortfolioMessage(*portfolio)
 
-	response += fmt.Sprintf("Total de Ativos: %d\n", len(portfolio.Assets))
-	response += fmt.Sprintf("Quantidade Total de Ativos: %d\n", portfolio.TotalQuantity())
-	response += fmt.Sprintf("Total em Carteira: R$%.2f\n", portfolio.TotalValue())
-
-	h.sendMessage(message.Chat.ID, response)
+	h.sendMessage(message.Chat.ID, msg, "Markdown")
 }
 
 func (h *Handler) handleListPortfolios(message *tgbotapi.Message) {
 	portfolios, err := h.PortfolioService.ListPortfolios()
 
 	if err != nil {
-		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err))
+		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Markdown")
 		return
 	}
 
-	response := fmt.Sprintf("Carteiras: \n")
+	response := "Carteiras: \n"
 	for _, portfolio := range portfolios {
-		response += fmt.Sprintf("%s:  Total R$%.2f \n", portfolio.Name, portfolio.TotalValue())
+		response += fmt.Sprintf("%s:  Total %s \n", portfolio.Name, utils.FormatBRL(portfolio.TotalValue()))
 	}
 
-	h.sendMessage(message.Chat.ID, response)
+	h.sendMessage(message.Chat.ID, response, "Markdown")
 }
 
-func (h *Handler) sendMessage(chatID int64, text string) {
+func (h *Handler) handleCreatePieChart(message *tgbotapi.Message) {
+	args := strings.SplitN(message.Text, " ", 2)
+	if len(args) < 2 {
+		h.sendMessage(message.Chat.ID, "Por favor, informe o nome da carteira. Exemplo: /pie-chart MinhaCarteira", "Text")
+		return
+	}
+
+	portfolioName := args[1]
+	portfolio, err := h.PortfolioService.GetPortfolioByName(portfolioName)
+	if err != nil {
+		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Markdown")
+		return
+	}
+
+	imagePath := "pie.png"
+
+	err = utils.CreatePieChart(*portfolio, imagePath)
+	if err != nil {
+		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Text")
+		return
+	}
+	// Envia a imagem como foto
+	file, err := os.Open(imagePath)
+	if err != nil {
+		h.sendMessage(message.Chat.ID, "Erro: imagem não encontrada.", "Markdown")
+		return
+	}
+	defer file.Close()
+	// Envia a foto
+	photo := tgbotapi.NewPhoto(message.Chat.ID, tgbotapi.FileReader{
+		Name:   imagePath,
+		Reader: file})
+
+	h.Bot.Send(photo)
+	_ = os.Remove(imagePath)
+}
+
+func (h *Handler) sendMessage(chatID int64, text string, parseMode string) {
 	msg := tgbotapi.NewMessage(chatID, text)
+	msg.ParseMode = parseMode
+	if parseMode == "Markdown" {
+		msg.DisableWebPagePreview = true
+	}
+	if parseMode == "Text" {
+		msg.ParseMode = ""
+	}
+	msg.ReplyMarkup = tgbotapi.NewRemoveKeyboard(true) // Remove teclado virtual
 	h.Bot.Send(msg)
 }
