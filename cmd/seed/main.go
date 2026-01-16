@@ -59,13 +59,14 @@ func seedFromCSV(portfolioName string) error {
 
 	for _, row := range records[1:] {
 		if len(row) < 14 {
-			continue // pula linhas inválidas ou vazias
+			continue
 		}
 
-		institution := strings.TrimSpace(row[1])
-		ticker := strings.TrimSpace(row[3])
-		quantStr := strings.TrimSpace(row[8])
-		priceStr := strings.TrimSpace(row[12])
+		ticker := strings.TrimSpace(row[0])
+		purchasePriceStr := strings.TrimSpace(row[1])
+		priceStr := strings.TrimSpace(row[2])
+		quantStr := strings.TrimSpace(row[3])
+		institution := strings.TrimSpace(row[4])
 
 		// Validação básica
 		if ticker == "" || quantStr == "" || priceStr == "" {
@@ -82,18 +83,25 @@ func seedFromCSV(portfolioName string) error {
 		priceStr = strings.ReplaceAll(priceStr, ",", ".")
 		priceStr = strings.Trim(priceStr, "\" ")
 
+		purchasePriceStr = strings.ReplaceAll(purchasePriceStr, "R$", "")
+		purchasePriceStr = strings.ReplaceAll(purchasePriceStr, ",", ".")
+		purchasePriceStr = strings.Trim(purchasePriceStr, "\" ")
+
 		preco, err := strconv.ParseFloat(priceStr, 64)
+		purchasePrice, err := strconv.ParseFloat(purchasePriceStr, 64)
+
 		if err != nil || preco == 0 {
 			continue
 		}
 		log.Printf("Preco %f", preco)
 
 		asset := models.Asset{
-			Ticker:      ticker,
-			Institution: institution,
-			Quantity:    quantidade,
-			Price:       preco,
-			PortfolioID: portfolio.ID,
+			Ticker:        ticker,
+			Institution:   institution,
+			Quantity:      quantidade,
+			Price:         preco,
+			PortfolioID:   portfolio.ID,
+			PurchasePrice: purchasePrice,
 		}
 
 		if err := db.DB.Create(&asset).Error; err != nil {
