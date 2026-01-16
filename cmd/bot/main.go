@@ -28,7 +28,11 @@ func main() {
 
 	db.DB.AutoMigrate(&models.Portfolio{}, &models.Asset{})
 
-	bot := infrabot.NewTelegramBot(token)
+	bot, err := infrabot.NewTelegramBot(token)
+
+	if err != nil {
+		log.Fatal("Erro ao carregar conectar token")
+	}
 
 	status_scraper := scraper.NewStatusInvestScraper()
 	binance_scraper := scraper.NewBinanceScraper()

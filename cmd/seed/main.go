@@ -58,7 +58,7 @@ func seedFromCSV(portfolioName string) error {
 	}
 
 	for _, row := range records[1:] {
-		if len(row) < 14 {
+		if len(row) < 5 {
 			continue
 		}
 

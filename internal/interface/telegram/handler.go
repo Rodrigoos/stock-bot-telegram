@@ -2,7 +2,6 @@ package telegram
 
 import (
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/Rodrigoos/stock-bot-telegram/internal/usecase"
@@ -58,7 +57,6 @@ func (h *Handler) HandleUpdates() {
 				"• `/stock` ou `/acao` — Busca ações na B3\n" +
 				"• `/fundo` — Busca fundos imobiliários\n" +
 				"• `/cripto` — Busca criptomoedas\n" +
-				"• `/pie-chart` ou `/grafico-pizza` — Gera gráfico de pizza da carteira\n" +
 				"• `/portfolio` ou `/carteira` — Mostra sua carteira\n" +
 				"• `/all-portfolios` — Lista todas as carteiras salvas\n" +
 				"•by Rodrigo • github.com/Rodrigoos"
@@ -75,8 +73,6 @@ func (h *Handler) HandleUpdates() {
 			h.handleFindCripto(update.Message)
 		case strings.HasPrefix(text, "/portfolio") || strings.HasPrefix(text, "/carteira"):
 			h.handleGetPortfolio(update.Message)
-		case strings.HasPrefix(text, "/pie-chart") || strings.HasPrefix(text, "/grafico-pizza"):
-			h.handleCreatePieChart(update.Message)
 		case strings.HasPrefix(text, "/all-portfolios") || strings.HasPrefix(text, "/totas-carteiras"):
 			h.handleListPortfolios(update.Message)
 		default:
@@ -171,43 +167,6 @@ func (h *Handler) handleListPortfolios(message *tgbotapi.Message) {
 	}
 
 	h.sendMessage(message.Chat.ID, response, "Markdown")
-}
-
-func (h *Handler) handleCreatePieChart(message *tgbotapi.Message) {
-	args := strings.SplitN(message.Text, " ", 2)
-	if len(args) < 2 {
-		h.sendMessage(message.Chat.ID, "Por favor, informe o nome da carteira. Exemplo: /pie-chart MinhaCarteira", "Text")
-		return
-	}
-
-	portfolioName := args[1]
-	portfolio, err := h.PortfolioService.GetPortfolioByName(portfolioName)
-	if err != nil {
-		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Markdown")
-		return
-	}
-
-	imagePath := "pie.png"
-
-	err = utils.CreatePieChart(*portfolio, imagePath)
-	if err != nil {
-		h.sendMessage(message.Chat.ID, fmt.Sprintf("Erro: %s", err), "Text")
-		return
-	}
-	// Envia a imagem como foto
-	file, err := os.Open(imagePath)
-	if err != nil {
-		h.sendMessage(message.Chat.ID, "Erro: imagem não encontrada.", "Markdown")
-		return
-	}
-	defer file.Close()
-	// Envia a foto
-	photo := tgbotapi.NewPhoto(message.Chat.ID, tgbotapi.FileReader{
-		Name:   imagePath,
-		Reader: file})
-
-	h.Bot.Send(photo)
-	_ = os.Remove(imagePath)
 }
 
 func (h *Handler) sendMessage(chatID int64, text string, parseMode string) {
