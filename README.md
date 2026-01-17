@@ -11,8 +11,7 @@ Um bot do Telegram escrito em Go, com Clean Architecture, que permite consultar 
 - Modular e escalável com Clean Architecture
 - Persiste dados com PostgreSQL
 - Configuração via .env
-- Modular e escalável com Clean Architecture
-
+  
 ---
 
 ## 📦 Instalação
@@ -52,6 +51,23 @@ stock-bot-telegram/
 ├── docker-compose.yml
 └── README.md
 ```
+
+## 🖼️ Capturas de telas
+
+### start
+<img width="965" height="876" alt="image" src="https://github.com/user-attachments/assets/8239018f-ff8e-49ad-9c06-bff8c8062459" />
+
+
+### seed file 
+<img width="685" height="394" alt="image" src="https://github.com/user-attachments/assets/faedd3f7-501f-4ed5-b62b-a25238945e3d" />
+
+### stock
+<img width="742" height="138" alt="image" src="https://github.com/user-attachments/assets/c645787a-39af-4d33-9995-278026f5542d" />
+
+### carteira
+
+<img width="748" height="638" alt="image" src="https://github.com/user-attachments/assets/86041814-6216-4ea9-b7a6-ed1483a8b5fa" />
+
 
 ## 🛠️ Comandos do Makefile
 
