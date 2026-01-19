@@ -111,9 +111,4 @@ make update-fund-prices
 make update-stock-prices
 ```
 
-Para ver todos os comandos disponíveis, rode:
-
-```bash
-make help
-```
 
