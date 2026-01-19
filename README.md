@@ -26,8 +26,19 @@ go mod tidy
 
 stock-bot-telegram/
 ├── cmd/
-│   └── bot/
+│   ├── bot/
+│   │   └── main.go
+│   ├── migrate/
+│   │   └── main.go
+│   ├── notify_portfolio/
+│   │   └── main.go
+│   ├── seed/
+│   │   └── main.go
+│   ├── update_fund_prices/
+│   │   └── main.go
+│   └── update_stock_price/
 │       └── main.go
+│
 ├── internal/
 │   ├── models/
 │   │   ├── asset.go
